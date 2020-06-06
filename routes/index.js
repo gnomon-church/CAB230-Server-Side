@@ -7,19 +7,51 @@ router.get('/', function (req, res, next) {
 })
 
 /* GET industries from database */
+
 router.get('/stocks/symbols/:StockIndustry', function (req, res, next) {
   req.db
     .from('stocks')
     .select('name', 'symbol', 'industry')
-    .where('industry', '=', req.params.StockIndustry)
+    .where('industry', 'like', '%'+req.params.StockIndustry+'%')
+    // .modify(function(queryBuilder) {
+    //   // if (req.params.StockIndustry) {
+    //     // queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
+    //     queryBuilder.where('industry', '=', 'Health Care')
+
+    //   // } else {
+    //   //   queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
+    //   // }
+    // })
     .then((rows) => {
       res.json(rows)
     })
-    .catch((err) => {
-      console.log(err)
-      res.json({ Error: true, Message: 'Error in MySQL query' })
+    .catch((_) => {
+      // res.status(400).json({ error: 'true', message: 'Invalid query parameter: only \'industry\' is permitted' })
+      res.status(404).json({ error: 'true', message: 'Industry sector not found' })
     })
 })
+
+// router.post('/stocks/symbols/:StockIndsutry', (req, res) => {
+//   if (!req.params.StockIndustry) {
+//     res.status(400).json({ error: 'true', message: 'Invalid query parameter: only \'industry\' is permitted' })
+//     console.log('Error on request body: ', JSON.stringify(req.body))
+//   } else {
+//     const filter = { Industry: req.body.CountryCode }
+
+//     req
+//       .db('stocks')
+//       .from('stocks')
+//       .select('name', 'symbol', 'industry')
+//       .where('industry', 'like', '%'+req.params.StockIndustry+'%')
+//       .then((rows) => {
+//         res.status(200).json(rows)
+//       })
+//       .catch((_) => {
+//         res.status(404).json({ error: 'true', message: 'Industry sector not found' })
+//       })
+//   }
+// })
+
 
 router.get('/api/city/:CountryCode', function (req, res, next) {
   req.db

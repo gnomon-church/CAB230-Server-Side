@@ -8,8 +8,11 @@ const options = require("./knexfile.js")
 const knex = require("knex")(options)
 const helmet = require("helmet")
 const cors = require("cors")
-const swaggerUI = require("swagger-ui-express")
-const swaggerDocument = require("./docs/swaggerpet.json")
+
+// Swagger UI setup
+const swaggerUI = require('swagger-ui-express');
+const yaml = require('yamljs');
+const swaggerDocument = yaml.load('./swagger.yaml');
 
 const indexRouter = require("./routes/index")
 const usersRouter = require("./routes/users")
@@ -40,9 +43,9 @@ logger.token("res", (req, res) => {
   return JSON.stringify(headers)
 })
 
-app.use("/", indexRouter)
+// app.use("/", indexRouter)
 app.use("/users", usersRouter)
-app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
+app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 app.get("/knex", (req, res, next) => {
   req.db
