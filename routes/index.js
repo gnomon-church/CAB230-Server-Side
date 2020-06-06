@@ -12,13 +12,12 @@ router.get('/stocks/symbols/:StockIndustry', function (req, res, next) {
   req.db
     .from('stocks')
     .select('name', 'symbol', 'industry')
-    .where('industry', 'like', '%'+req.params.StockIndustry+'%')
+    // .where('industry', 'like', '%'+req.params.StockIndustry+'%')
     // .modify(function(queryBuilder) {
-    //   // if (req.params.StockIndustry) {
-    //     // queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
-    //     queryBuilder.where('industry', '=', 'Health Care')
-
-    //   // } else {
+    //   if (req.params.StockIndustry !== null) {
+    //     queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
+    //   } 
+    //   // else {
     //   //   queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
     //   // }
     // })
@@ -31,26 +30,6 @@ router.get('/stocks/symbols/:StockIndustry', function (req, res, next) {
     })
 })
 
-// router.post('/stocks/symbols/:StockIndsutry', (req, res) => {
-//   if (!req.params.StockIndustry) {
-//     res.status(400).json({ error: 'true', message: 'Invalid query parameter: only \'industry\' is permitted' })
-//     console.log('Error on request body: ', JSON.stringify(req.body))
-//   } else {
-//     const filter = { Industry: req.body.CountryCode }
-
-//     req
-//       .db('stocks')
-//       .from('stocks')
-//       .select('name', 'symbol', 'industry')
-//       .where('industry', 'like', '%'+req.params.StockIndustry+'%')
-//       .then((rows) => {
-//         res.status(200).json(rows)
-//       })
-//       .catch((_) => {
-//         res.status(404).json({ error: 'true', message: 'Industry sector not found' })
-//       })
-//   }
-// })
 
 
 router.get('/api/city/:CountryCode', function (req, res, next) {

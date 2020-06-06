@@ -44,8 +44,8 @@ logger.token("res", (req, res) => {
 })
 
 // app.use("/", indexRouter)
-app.use("/users", usersRouter)
-app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
+app.use("/", indexRouter)
+// app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 app.get("/knex", (req, res, next) => {
   req.db
