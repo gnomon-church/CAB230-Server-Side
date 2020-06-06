@@ -1,9 +1,11 @@
-const options = {
-    client: "mysql",
-    connection: {
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "webcomputing",
-    },
-};
+// Update with your config settings.
+
+module.exports = {
+  client: "mysql",
+  connection: {
+    host: "localhost",
+    database: "webcomputing",
+    user: "root",
+    password: "Cab230!"
+  }
+}
