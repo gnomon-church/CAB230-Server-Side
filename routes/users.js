@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken')
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
 
 /* POST register new user */
@@ -38,18 +38,23 @@ router.post('/login', function (req, res) {
       .then((users) => {
         if (users.length === 0) {
           res.status(401).json({ error: true, message: 'Incorrect email or password' });
+          return
         } else {
-          let match = bcrypt.compare(req.body.password, users[0].hash)
-          if (!match) {
-            res.status(401).json({ error: true, message: 'Incorrect email or password' });
-          }
+          return bcrypt.compare(req.body.password, users[0].hash)
+        }
+      })
+      .then((match) => {
+        console.log(match)
+        if (!match) {
+          res.status(401).json({ error: true, message: 'Incorrect email or password' });
+        } else {
           const secretKey = 'a very secret key that nobody knows';
           const expireIn = 60 * 60 * 24; // Expiry time of one day
           const exp = Date.now() + expireIn * 1000;
-          const token = jwt.sign({ sub: req.body.email, exp: exp }, secretKey)
-          res.status(200).json({ token: token, token_type: 'Bearer', expires: expireIn })
+          const token = jwt.sign({ email: req.body.email, exp: exp }, secretKey)
+          res.status(200).json({ token: token, token_type: 'Bearer', expires_in: expireIn })
         }
-      })
+      })      
   }
 })
 
