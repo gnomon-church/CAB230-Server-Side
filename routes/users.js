@@ -1,12 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken')
 
 
+/* POST register new user */
 router.post('/register', function (req, res) {
-  // console.log('-----------------------------');
-  // console.log('here');
-  // console.log('-----------------------------');
   if (!req.body.email || !req.body.password) {
     res.status(400).json({ error: 'true', message: 'Request body incomplete - email and password needed' })
   } else {
@@ -20,38 +19,39 @@ router.post('/register', function (req, res) {
         } else {
           const saltRounds = 10;
           const hash = bcrypt.hashSync(req.body.password, saltRounds);
-          
+
           req.db.from('users').insert({ email: req.body.email, hash: hash }).then(res.status(201).json({ success: 'true', message: 'User created' }))
         }
       })
   }
 })
 
-
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" })
-})
-
-router.post('/api/update', (req, res) => {
-  if (!req.body.City || !req.body.CountryCode || !req.body.Pop) {
-    res.status(400).json({ message: 'Error updating population' })
-    console.log('Error on request body: ', JSON.stringify(req.body))
+/* POST login current user */
+router.post('/login', function (req, res) {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).json({ error: 'true', message: 'Request body invalid - email and password are required' })
   } else {
-    const filter = { Name: req.body.City, CountryCode: req.body.CountryCode }
-    const pop = { Population: req.body.Pop }
-
-    req
-      .db('city')
-      .where(filter)
-      .update(pop)
-      .then((_) => {
-        res.status(201).json({ message: `Successful update ${req.body.City}` })
-        console.log('successful population update: ', JSON.stringify(filter))
-      })
-      .catch((_) => {
-        res.status(500).json({ message: 'Database error - not updated' })
+    req.db
+      .from('users')
+      .select('*')
+      .where('email', '=', req.body.email)
+      .then((users) => {
+        if (users.length === 0) {
+          res.status(401).json({ error: true, message: 'Incorrect email or password' });
+        } else {
+          let match = bcrypt.compare(req.body.password, users[0].hash)
+          if (!match) {
+            res.status(401).json({ error: true, message: 'Incorrect email or password' });
+          }
+          const secretKey = 'a very secret key that nobody knows';
+          const expireIn = 60 * 60 * 24; // Expiry time of one day
+          const exp = Date.now() + expireIn * 1000;
+          const token = jwt.sign({ sub: req.body.email, exp: exp }, secretKey)
+          res.status(200).json({ token: token, token_type: 'Bearer', expires: expireIn })
+        }
       })
   }
 })
+
 
 module.exports = router
