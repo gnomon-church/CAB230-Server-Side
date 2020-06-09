@@ -42,7 +42,7 @@ logger.token('res', (req, res) => {
   return JSON.stringify(headers)
 })
 
-app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
+// app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 app.use('/stocks', indexRouter)
 app.use('/user', usersRouter)
 

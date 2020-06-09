@@ -1,11 +1,12 @@
-var express = require('express')
-var router = express.Router()
+var express = require('express');
+var router = express.Router();
+var bcrypt = require('bcrypt');
 
 
 router.post('/register', function (req, res) {
-  console.log('-----------------------------');
-  console.log('here');
-  console.log('-----------------------------');
+  // console.log('-----------------------------');
+  // console.log('here');
+  // console.log('-----------------------------');
   if (!req.body.email || !req.body.password) {
     res.status(400).json({ error: 'true', message: 'Request body incomplete - email and password needed' })
   } else {
@@ -20,19 +21,15 @@ router.post('/register', function (req, res) {
           const saltRounds = 10;
           const hash = bcrypt.hashSync(req.body.password, saltRounds);
           
-          req.db.from('users').insert({ email: req.body.email, hash: hash })
+          req.db.from('users').insert({ email: req.body.email, hash: hash }).then(res.status(201).json({ success: 'true', message: 'User created' }))
         }
       })
   }
 })
 
 
-
-
-
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource')
+router.get("/", function (req, res, next) {
+  res.render("index", { title: "Express" })
 })
 
 router.post('/api/update', (req, res) => {
