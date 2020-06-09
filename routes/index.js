@@ -6,28 +6,52 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' })
 })
 
-/* GET industries from database */
 
-router.get('/stocks/symbols/:StockIndustry', function (req, res, next) {
-  req.db
-    .from('stocks')
-    .select('name', 'symbol', 'industry')
-    // .where('industry', 'like', '%'+req.params.StockIndustry+'%')
-    // .modify(function(queryBuilder) {
-    //   if (req.params.StockIndustry !== null) {
-    //     queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
-    //   } 
-    //   // else {
-    //   //   queryBuilder.where('industry', 'like', '%'+req.params.StockIndustry+'%')
-    //   // }
-    // })
-    .then((rows) => {
+/* GET stocks from database (filtered by industry) */
+router.get('/stocks/symbols', function (req, res, next) {
+  if (!('industry' in req.query)) {
+    if (Object.keys(req.query).length === 0) {
+      req.db
+        .from('stocks')
+        .select('name', 'symbol', 'industry')
+        .then((rows) => {
       res.json(rows)
     })
-    .catch((_) => {
-      // res.status(400).json({ error: 'true', message: 'Invalid query parameter: only \'industry\' is permitted' })
-      res.status(404).json({ error: 'true', message: 'Industry sector not found' })
+    } else {
+      res.status(400).json({ error: 'true', message: 'Invalid query parameter: only \'industry\' is permitted' })
+    }
+  } else {
+    req.db
+    .from('stocks')
+    .select('name', 'symbol', 'industry')
+    .where('industry', 'like', '%'+req.query.industry+'%')
+    .then((rows) => {
+      if (rows.length === 0) {
+        res.status(404).json({ error: 'true', message: 'Industry sector not found' })
+      } else {
+        res.json(rows)
+      }
     })
+  }
+})
+
+/* GET stocks from database (by symbol) */
+router.get('/stocks/:StockSymbol', function (req, res, next) {
+  if (Object.keys(req.query).length !== 0) {
+    res.status(400).json({ error: 'true', message: 'Date parameters only available on authenticated route /stocks/authed' })
+  } else {
+    req.db
+    .from('stocks')
+    .select('timestamp', 'symbol', 'name', 'industry', 'open', 'high', 'low', 'close', 'volumes')
+    .whereRaw('symbol = BINARY ?', [req.params.StockSymbol])
+    .then((rows) => {
+      if (rows.length === 0) {
+        res.status(404).json({ error: 'true', message: 'No entry for symbol in stocks database' })
+      } else {
+        res.json(rows[0])
+      }
+    })
+  }
 })
 
 
